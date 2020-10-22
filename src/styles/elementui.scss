@@ -6,10 +6,22 @@
   border-right: none;
 }
 
+.el-table-column--selection>.cell{
+  text-overflow: initial;
+}
+
 /* 侧栏菜单样式 */
 li.el-submenu {
   .el-menu-item {
+    font-size: 14px;
+    padding-left: 48px !important;
     background-color: #2f4357 !important;
+    &.is-active {
+      background-color: rgba(245, 108, 108, 0.2) !important;
+      &:hover{
+        background-color: rgba(245, 108, 108, 0.3) !important;
+      }
+    }
   }
   &.is-opened .el-submenu__title {
     background-color: #f56c6c !important;
