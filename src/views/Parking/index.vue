@@ -4,31 +4,33 @@
       <el-row>
         <el-col :span="21">
           <el-form :inline="true" :model="form" class="demo-form-inline">
-            <el-form-item label="区域">
-             <el-cascader v-model="form.value" :options="options" :props="{ expandTrigger: 'hover' }"></el-cascader>
-            </el-form-item>
-            <el-form-item label="类型">
-              <el-select v-model="form.type" placeholder="停车场" class="width-120">
-                <el-option v-for="item in parking_type" :label="item.label" :value="item.value" :key="item.value"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="禁启用">
-              <el-select v-model="form.status" placeholder="请选择" class="width-120">
-                <el-option v-for="item in parking_status" :label="item.label" :value="item.value" :key="item.value" ></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="关键字">
-              <el-select v-model="search_key" placeholder="请选择" class="width-120">
-                <el-option label="停车场名称" value="parkingName"></el-option>
-                <el-option label="详细区域" value="address"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-input v-model="keyword" placeholder="请输入关键字按Enter搜索"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="danger">搜索</el-button>
-            </el-form-item>
+             <el-form :inline="true" :model="form" class="demo-form-inline">
+                <el-form-item label="区域：">
+                  <CityArea :cityAreaValue.sync="form.area" />
+                </el-form-item>
+                <el-form-item label="类型：">
+                  <el-select v-model="form.type" placeholder="请选择" class="width-120">
+                     <el-option v-for="item in parking_type" :label="item.label" :value="item.value" :key="item.value"></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="禁启用：">
+                  <el-select v-model="form.status" placeholder="请选择" class="width-120">
+                     <el-option v-for="item in parking_status" :label="item.label" :value="item.value" :key="item.value"></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="关键字：">
+                  <el-select v-model="search_key" placeholder="请选择" class="width-120">
+                    <el-option label="停车场名称" value="parkingName"></el-option>
+                    <el-option label="详细区域" value="address"></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item >
+                    <el-input placeholder="请输入关键字"></el-input>
+                </el-form-item>                         
+                <el-form-item>
+                  <el-button type="danger">搜索</el-button>
+                </el-form-item>
+            </el-form>
           </el-form>
         </el-col>
         <el-col :span="3">
@@ -40,68 +42,107 @@
         </el-col>
       </el-row>
     </div>
+    <!-- 表格数据 -->
     <el-table :data="tableData" border style="width: 100%">
-      <el-table-column type="selection" fixed="left" width="35"></el-table-column>
-      <el-table-column prop="name" label="停车场名称"></el-table-column>   
-      <el-table-column prop="name" label="类型"></el-table-column>   
-      <el-table-column prop="name" label="区域"></el-table-column>   
-      <el-table-column prop="name" label="可停放车辆"></el-table-column>   
-      <el-table-column label="禁启用">
+      <el-table-column type="selection" width="35" fixed="left"></el-table-column>
+      <el-table-column prop="parkingName" label="停车场名称" width="120"></el-table-column>
+      <el-table-column prop="type" label="类型"></el-table-column>
+      <el-table-column prop="address" label="区域" width="250"></el-table-column>
+      <el-table-column prop="carsNumber" label="可停放车辆" width="100"></el-table-column>
+      <el-table-column prop="disabled" label="禁启用">
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.status"
-            active-color="#13ce66"
-            inactive-color="#ff4949">
-          </el-switch>
+          <el-switch v-model="scope.row.status" :active-value="true" :inactive-value="false" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="查看位置"></el-table-column>
-      <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column prop="lnglat" label="查看位置" width="200"></el-table-column>
+      <el-table-column label="操作" width="200" fixed="right">
         <template slot-scope="scope">
-          <el-button type="danger" size="mini">编辑</el-button>
-          <el-button size="mini">删除</el-button>
+          <el-button type="danger" size="small" @click="edit(scope.row.id)">编辑</el-button>
+          <el-button size="small" @click="delConfirm(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-row class="padding-top-30">
+      <el-col :span="4"><div style="padding: 5px;"></div></el-col>
+      <el-col :span="20">
+        <el-pagination
+          class="pull-right"
+          background
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="10"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+        </el-pagination>
+      </el-col>
+    </el-row>
   </div>
 </template>
-
-<script>
+<script> 
+import CityArea from "@c/common/cityArea";
+import { ParkingList } from "@/api/parking";
 export default {
-  name: "ParkingIndex",
-  data(){
-    return{
-      // 筛选
+  name: "Parking",
+  components:{ CityArea },
+  data() {
+    return {
+      // 页码
+      total: 0,
+      // 当前页码
+      currentPage: 1,
+      // 请求API的页码
+      pageSize: 10,
+      pageNumber: 1,
+      search_key:"",
+      parking_status: this.$store.state.config.parking_status,
+      parking_type: this.$store.state.config.parking_type,
       form: {
+        parking_name: "",
         area: "",
-        type: "",
-        status: "",
-        value:[]
+        type: ""
       },
-      tableData: [{        
-        name: '王小虎',
-        status:0
-      }],
-      options: [{
-        value: 'zhinan',
-        label: '指南',
-        children: [{
-          value: 'shejiyuanze',
-          label: '设计原则',
-          children: [{
-            value: 'yizhi',
-            label: '一致'
-          }]
-        }]
-      }],
-      search_key: "",
-      keyword: "",
-      parking_type:[],
-      parking_status:[],
+      options: [],
+      tableData: []
+    };
+  },
+  methods:{
+    getParkingList(){
+      const requestData = {
+        pageSize: this.pageSize,
+        pageNumber: this.pageNumber
+      }
+      ParkingList(requestData).then(response => {
+        const data = response.data;
+        // 判断数据是否存在
+        if(data) { this.tableData = data.data }
+        // 页码
+        if(data.total) { this.total = data.total; }
+      })
+    },
+    handleSizeChange(val){
+      this.pageSize = val;
+      this.getParkingList();
+    },
+    handleCurrentChange(val){
+      this.pageNumber = val;
+      this.getParkingList();
+    },
+    edit(id){
+
+    },
+    delConfirm(id){
+
     }
+  },
+  beforeMount(){
+    this.getParkingList();
+  },
+  mounted() {
+    
   }
 };
 </script>
-
-<style>
+<style lass="scss" scoped>
 </style>
