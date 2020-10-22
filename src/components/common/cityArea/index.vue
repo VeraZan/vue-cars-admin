@@ -1,5 +1,9 @@
 <template>
-  <el-cascader v-model="value" :props="cascader_props" @change="changeValue"></el-cascader>
+  <el-cascader 
+    v-model="value" 
+    :props="cascader_props" 
+    @change="changeValue">
+  </el-cascader>
 </template>
 
 <script>
@@ -10,11 +14,18 @@ export default {
     cityAreaValue:{
       type:String,
       default:""
-    }
+    },
+		mapLocation: {
+			type: Boolean,
+			default: false
+		}
   },
   data(){
+    const _this = this;
     return{
       value:"",
+      address:[],
+      addressObj:{},
       cascader_props:{
         lazy: true,
         lazyLoad (node, resolve) {
@@ -38,8 +49,12 @@ export default {
               // 最后一层选择
               if(level === 2) { item.leaf = level >= 2; }
             })
+            _this.addressObj[jsonType[level].type] = data;
             resolve(data);
           })
+          if(node.value !== 0){
+            _this.getAddress(node);
+          }
         }
       }
     }
@@ -47,7 +62,27 @@ export default {
   methods:{
     changeValue(value){
       this.$emit("update:cityAreaValue",value.join());
-    }
+      const areaCode = value[value.length -1];
+      this.address[2] = this.addressObj.area.filter(item => item.value === areaCode)[0].label;
+      this.getAddress();
+    },
+    // 获取中文地址
+    getAddress(node){
+      if(node){
+        this.address[node.level - 1] = node.label;
+      }
+      if(this.mapLocation){
+        this.$emit("callback",{
+          function:"setMapCenter",
+          data:{
+            address:this.address.join("")
+          }
+        })
+      }          
+    },
+    clear(){
+			this.value = "";
+		}
   }
 }
 </script>
