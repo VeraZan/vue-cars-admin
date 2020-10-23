@@ -39,3 +39,11 @@ export function ParkingDetailed(data = {}){
     data
   })
 }
+/** 停车场状态 */
+export function ParkingStatus(data = {}){
+  return service.request({
+    method: "post",
+    url: "/parking/status/",
+    data
+  })
+}
