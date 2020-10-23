@@ -7,6 +7,9 @@
       <el-form-item label="区域：" prop="area">
         <CityArea :cityAreaValue.sync="form.area" :mapLocation="true" @callback="callbackComponents" ref="cityArea" />
       </el-form-item>
+      <el-form-item label="详细地址：" prop="address">
+        <el-input v-model="form.address"></el-input>
+      </el-form-item>
       <el-form-item label="类型：" prop="type">
         <el-radio-group v-model="form.type">
           <el-radio v-for="item in parking_type" :label="item.value" :key="item.value">{{ item.label }}</el-radio>
@@ -22,7 +25,7 @@
       </el-form-item>
       <el-form-item label="位置：">
         <div class="address-wrap">
-          <Amap @callback="callbackComponents" ref="amap" />
+          <Amap @callback="callbackComponents" ref="amap" :options="options_map" />
         </div>
       </el-form-item>        
       <el-form-item prop="lnglat">
@@ -39,17 +42,19 @@
 import Amap from "../amap";
 import CityArea from "@c/common/cityArea";
 // API
-import { ParkingAdd } from "@/api/parking";
+import { ParkingAdd,ParkingDetailed,ParkingEdit } from "@/api/parking";
 export default {
   name:"ParkingAdd",
   components:{ Amap,CityArea },
   data(){
     return{
+      id:this.$route.query.id,
       parking_status: this.$store.state.config.parking_status,
       parking_type: this.$store.state.config.parking_type,
       form: {
         parkingName: "",
         area:"",
+        address:"",
         carsNumber: 0,
         type: 2,
         status: true,
@@ -66,12 +71,18 @@ export default {
         area: [
           { required: true, message:'请选择区域', trigger: 'change' }
         ],
+        address: [
+          { required: true, message: '请输入详细地址', trigger: 'change' },
+        ],
         lnglat: [
           { required: true, message:'经纬度不能为空', trigger: 'change' }
         ]
       },
       // 按钮加载
-      button_loading: false
+      button_loading: false,
+      options_map:{
+        mapLoad:true
+      }
     }
   },
   methods:{
@@ -90,17 +101,37 @@ export default {
       this.button_loading = true;
       this.$refs[formName].validate((valid) => {
         if(valid) {
-          this.addParking();
+          this.id ? this.editParking() : this.addParking();
         }else {
+          this.button_loading = false;
           return false;
         }
       });
-    },
+    },   
+    /** 新增停车场API */
     addParking(){
+      this.button_loading = true;
       ParkingAdd(this.form).then(response => {
         this.$message.success(response.message);
         this.button_loading = false;
         this.reset("form");
+      }).catch(error => {
+        this.button_loading = false;
+      })
+    },
+    /** 修改停车场API */
+    editParking(){
+      let requestData = JSON.parse(JSON.stringify(this.form));
+      requestData.id = this.id;
+      this.button_loading = true;
+      ParkingEdit(requestData).then(response => {
+        this.$message.success(response.message);
+        this.button_loading = false;
+        this.$router.push({
+            name: "ParkingIndex"
+        })
+      }).catch(error => {
+        this.button_loading = false;
       })
     },
     reset(formName){
@@ -109,7 +140,29 @@ export default {
       this.$refs.cityArea.clear();
       // 清除地图覆盖物
       this.$refs.amap.clearMarker();
+    },
+    getDetailed(){
+      ParkingDetailed({id:this.id}).then(response => {
+        const data = response.data;
+        Object.keys(this.form).forEach(item => {
+          if(data[item] !== undefined && data[item] !== null) this.form[item] = data[item];
+        })
+        const lnglat_arr = data.lnglat.split(",");
+        const lnglat = {
+          lng:lnglat_arr[0],
+          lat:lnglat_arr[1]
+        };
+        this.$refs.amap.setMarker(lnglat);
+        this.$refs.cityArea.initDefault(data.region);
+      })
+    },
+    mapLoad(){
+      if(!this.id) return false;
+      this.getDetailed();
     }
+  },
+  beforeMount(){
+    
   }
 }
 </script>
