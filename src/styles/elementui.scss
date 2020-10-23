@@ -79,3 +79,10 @@ li.el-submenu {
     }
   }
 }
+/* 级联菜单 */
+.cascader-input {
+  input::-webkit-input-placeholder { color:#606266; }
+  input:-moz-placeholder { color:#606266; }
+  input::-moz-placeholder { color:#606266; }
+  input:-ms-input-placeholder { color:#606266; }
+}
