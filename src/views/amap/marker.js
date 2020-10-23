@@ -6,6 +6,7 @@ export function amapSetMarker(lnglat,map){
   marker = new AMap.Marker();
   marker.setPosition([lnglat.lng,lnglat.lat]);
   map.add(marker);
+  map.setFitView(marker);
 }
 export function amapClearMarker(map){
   if(marker) {
