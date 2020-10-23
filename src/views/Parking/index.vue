@@ -9,17 +9,17 @@
                   <CityArea :cityAreaValue.sync="form.area" />
                 </el-form-item>
                 <el-form-item label="类型：">
-                  <el-select v-model="form.type" placeholder="请选择" class="width-120">
+                  <el-select v-model="form.type" placeholder="请选择" clearable class="width-120">
                      <el-option v-for="item in parking_type" :label="item.label" :value="item.value" :key="item.value"></el-option>
                   </el-select>
                 </el-form-item>
                 <el-form-item label="禁启用：">
-                  <el-select v-model="form.status" placeholder="请选择" class="width-120">
+                  <el-select v-model="form.status" placeholder="请选择" clearable class="width-120">
                      <el-option v-for="item in parking_status" :label="item.label" :value="item.value" :key="item.value"></el-option>
                   </el-select>
                 </el-form-item>
                 <el-form-item label="关键字：">
-                  <el-select v-model="search_key" placeholder="请选择" class="width-120">
+                  <el-select v-model="search_key" clearable placeholder="请选择" class="width-120">
                     <el-option label="停车场名称" value="parkingName"></el-option>
                     <el-option label="详细区域" value="address"></el-option>
                   </el-select>
@@ -28,7 +28,7 @@
                     <el-input v-model="keyword" placeholder="请输入关键字"></el-input>
                 </el-form-item>                         
                 <el-form-item>
-                  <el-button type="danger" @click="getParkingList">搜索</el-button>
+                  <el-button type="danger" @click="search">搜索</el-button>
                 </el-form-item>
             </el-form>
           </el-form>
@@ -43,72 +43,97 @@
       </el-row>
     </div>
     <!-- 表格数据 -->
-    <el-table :data="tableData" v-loading="table_loading" border style="width: 100%">
-      <el-table-column type="selection" width="35" fixed="left"></el-table-column>
-      <el-table-column prop="parkingName" label="停车场名称" width="180"></el-table-column>
-      <el-table-column prop="type" label="类型" width="80">
-        <template slot-scope="scope">
-          {{ getType(scope.row.type) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="address" label="区域"></el-table-column>
-      <el-table-column prop="carsNumber" label="可停放车辆" width="100"></el-table-column>
-      <el-table-column prop="disabled" label="禁启用" width="80">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.status" :active-value="true" :inactive-value="false" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column prop="lnglat" label="查看位置" width="110">
-        <template slot-scope="scope">
-          <el-button type="success" size="mini" @click="showMap(scope.row)">查看地图</el-button>
-        </template> 
-      </el-table-column>
-      <el-table-column label="操作" width="150" fixed="right">
-        <template slot-scope="scope">
-          <el-button type="danger" size="small" @click="edit(scope.row.id)">编辑</el-button>
-          <el-button size="small" @click="delConfirm(scope.row.id)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-row class="padding-top-30">
-      <el-col :span="4"><div style="padding: 5px;"></div></el-col>
-      <el-col :span="20">
-        <el-pagination
-          class="pull-right"
-          background
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[10, 20, 50, 100]"
-          :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total">
-        </el-pagination>
-      </el-col>
-    </el-row>
+    <TableData :config="table_config" ref="table">
+      <template v-slot:status="slotData">
+        <el-switch 
+          v-model="slotData.data.status" 
+          @change="switchChange(slotData.data)" 
+          :disabled="slotData.data.id == switch_disabled_id"
+          :active-value="true" 
+          :inactive-value="false" 
+          active-color="#13ce66" 
+          inactive-color="#ff4949"
+        > 
+        </el-switch>      
+      </template>
+      <template v-slot:lnglat="slotData">
+        <el-button type="success" size="mini" @click="showMap(slotData.data)">查看地图</el-button>    
+      </template>
+      <template v-slot:operate="slotData">
+        <el-button type="danger" size="small" @click="edit(slotData.data.id)">编辑</el-button>
+        <el-button 
+          size="small" 
+          @click="delConfirm(slotData.data.id)" 
+          :loading="slotData.data.id == delete_disabled_id"
+        >
+          删除
+        </el-button>    
+      </template>
+    </TableData>
     <ShowMapLocation :flagVisible.sync="map_show" :parking_data="parking_data" />
   </div>
 </template>
 <script> 
 import CityArea from "@c/common/cityArea";
+import TableData from "@c/tableData";
 import ShowMapLocation from "@c/dialog/showMapLocation";
-import { ParkingList,ParkingDelete } from "@/api/parking";
+import { ParkingList,ParkingDelete,ParkingStatus } from "@/api/parking";
+import { address,parkingType } from "@/utils/common";
 export default {
   name: "Parking",
-  components:{ CityArea,ShowMapLocation },
+  components:{ CityArea,ShowMapLocation,TableData },
   data() {
     return {
-      // 页码
-      total: 0,
-      // 当前页码
-      currentPage: 1,
-      // 请求API的页码
-      pageSize: 10,
-      pageNumber: 1,
+      table_config:{
+        thead: [
+          { label: "停车场名称", prop: "parkingName",width:180 },
+          { 
+            label: "类型", 
+            prop: "type",
+            type: "function",
+            callback: (row, prop) => parkingType(row[prop]),
+            width:80
+          },
+          { 
+            label: "区域",
+            prop: "address",
+            type: "function",          
+            callback: (row, prop) => address(row[prop])
+          },
+          { label: "可停放车辆", prop: "carsNumber",width:100 },
+          { 
+            label: "禁启用", 
+            prop: "status",
+            type: "slot",
+            slotName: "status",
+            width:80 
+          },
+          { 
+            label: "查看位置", 
+            prop: "lnglat",
+            type: "slot",
+            slotName: "lnglat",
+            width: 110 
+          },
+          { 
+            label: "操作",
+            type: "slot",
+            slotName: "operate",
+            width: 150,
+            fixed: "right" 
+          }
+        ],
+        url: "parkingList",
+        data:{
+          pageSize: 10,
+          pageNumber: 1
+        }
+      },    
       search_key:"",
       keyword:"",
+      switch_disabled_id:"",
+      delete_disabled_id:"",
       map_show:false,
-      table_loading: false,
       parking_data:{},
       parking_status: this.$store.state.config.parking_status,
       parking_type: this.$store.state.config.parking_type,
@@ -116,27 +141,21 @@ export default {
         status: "",
         area: "",
         type: "",
-      },
-      options: [],
-      tableData: []
+      }
     };
   },
   methods:{
-    getType(value){
-      const data = this.parking_type.filter(item => item.value == value);
-      if(data && data.length > 0){
-        return data[0].label;
-      }else{
-        return "";
-      }
+    //查看地图
+    showMap(data){
+      this.map_show = true;
+      this.parking_data = data;
     },
-    //获取停车场表格数据
-    getParkingList(){
-      const requestData = {
-        pageSize: this.pageSize,
-        pageNumber: this.pageNumber
+    //搜索
+    search(){
+      const requestData={
+        pageSize:10,
+        pageNumber:1
       };
-      //过滤筛选
       const filterData = JSON.parse(JSON.stringify(this.form));
       for(let key in filterData){
         if(filterData[key]){
@@ -144,32 +163,20 @@ export default {
         }
       }
       if(this.search_key && this.keyword) { requestData[this.search_key] = this.keyword }
-      this.table_loading = true;
-      ParkingList(requestData).then(response => {
-        const data = response.data;
-        // 判断数据是否存在
-        if(data) { this.tableData = data.data }
-        // 页码
-        if(data.total) { this.total = data.total; }
-        this.table_loading = false;
+      this.$refs.table.requestData(requestData);
+    },
+    switchChange(data){
+      const requestData = {
+        id:data.id,
+        status:data.status
+      };
+      this.switch_disabled_id = data.id;
+      ParkingStatus(requestData).then(response => {
+        this.$message.success(response.message);
+        this.switch_disabled_id = "";
       }).catch(error => {
-        this.table_loading = false;
+        this.switch_disabled_id = "";
       })
-    },
-    //改变显示条数
-    handleSizeChange(val){
-      this.pageSize = val;
-      this.getParkingList();
-    },
-    //改变页码
-    handleCurrentChange(val){
-      this.pageNumber = val;
-      this.getParkingList();
-    },
-    //查看地图
-    showMap(data){
-      this.map_show = true;
-      this.parking_data = data;
     },
     // 编辑
     edit(id){
@@ -187,15 +194,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        ParkingDelete({id}).then(response => {
+        this.delete_disabled_id = id;
+        ParkingDelete({id:id}).then(response => {
           this.$message.success(response.message);
-          this.getParkingList();
+          this.$refs.table.requestData();
+          this.delete_disabled_id = "";
+        }).catch(error => {
+          this.delete_disabled_id = "";
         })
       }).catch(() => {});
     }
   },
   beforeMount(){
-    this.getParkingList();
+    
   },
   mounted() {
     
