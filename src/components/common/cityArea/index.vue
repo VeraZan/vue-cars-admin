@@ -2,6 +2,8 @@
   <el-cascader 
     v-model="value" 
     :props="cascader_props" 
+    :class="{'cascader-input' : initValueFlag}" 
+    :placeholder="initValue" 
     @change="changeValue">
   </el-cascader>
 </template>
@@ -56,7 +58,9 @@ export default {
             _this.getAddress(node);
           }
         }
-      }
+      },
+      initValue: "请选择省市区",
+			initValueFlag: false,
     }
   },
   methods:{
@@ -82,7 +86,13 @@ export default {
     },
     clear(){
 			this.value = "";
-		}
+    },
+    initDefault(value){
+      if(value) {
+				this.initValueFlag = true;
+				this.initValue = value.split(",").join(" / ");
+			}
+    }
   }
 }
 </script>
