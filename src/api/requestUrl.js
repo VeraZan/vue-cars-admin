@@ -1,3 +1,4 @@
 export const requestUrl = {
-  parkingList:"/parking/list/"
+  parkingList:"/parking/list/",
+  brandList:"/brand/list/"
 }
