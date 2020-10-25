@@ -5,16 +5,10 @@
         <el-col :span="18">
           <el-form :inline="true" :model="form" class="demo-form-inline">
             <el-form-item label="车辆品牌">
-              <el-select v-model="form.region" placeholder="选择品牌">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="品牌型号">
-              <el-input v-model="form.user" placeholder="审批人"></el-input>
+              <el-input v-model="form.brand"></el-input>
             </el-form-item>           
             <el-form-item>
-              <el-button type="danger">搜索</el-button>
+              <el-button type="danger" @click="search">搜索</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -23,48 +17,134 @@
         </el-col>
       </el-row>
     </div>
-    <el-table :data="tableData" border style="width: 100%">
-      <el-table-column type="selection" fixed="left" width="35"></el-table-column>
-      <el-table-column prop="name" label="LOGO"></el-table-column>   
-      <el-table-column prop="name" label="车辆品牌"></el-table-column>   
-      <el-table-column prop="name" label="品牌型号"></el-table-column>   
-      <el-table-column label="禁启用">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.status"
-            active-color="#13ce66"
-            inactive-color="#ff4949">
-          </el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" fixed="right" width="200">
-        <template slot-scope="scope">
-          <el-button type="danger" size="mini">编辑</el-button>
-          <el-button size="mini">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <AddCarsBrand :flagVisible.sync="dialogFormVisible" />
+    <!-- 表格数据 -->
+    <TableData :config="table_config" ref="table">
+      <template v-slot:status="slotData">
+        <el-switch 
+          v-model="slotData.data.status" 
+          @change="switchChange(slotData.data)" 
+          :disabled="slotData.data.id == switch_disabled_id"
+          :active-value="true" 
+          :inactive-value="false" 
+          active-color="#13ce66" 
+          inactive-color="#ff4949"
+        > 
+        </el-switch>      
+      </template>   
+      <template v-slot:operate="slotData">
+        <el-button type="danger" size="small" @click="edit(slotData.data.id)">编辑</el-button>
+        <el-button 
+          size="small" 
+          @click="delConfirm(slotData.data.id)" 
+          :loading="slotData.data.id == delete_disabled_id"
+        >
+          删除
+        </el-button>    
+      </template>
+    </TableData>
+    <AddCarsBrand :flagVisible.sync="dialogFormVisible" :id.sync="data_id" />
   </div>
 </template>
 
 <script>
+import TableData from "@c/tableData";
 import AddCarsBrand from "@c/dialog/addCarsBrand";
+import { BrandStatus,BrandDelete } from "@/api/brand";
 export default {
   name:"CarsBrandIndex",
-  components:{ AddCarsBrand },
+  components:{ TableData,AddCarsBrand },
   data(){
     return{
-      dialogFormVisible:false,
+      dialogFormVisible: false,
       form: {
-        user: '',
-        region: ''
+        brand: ''
       },
-      tableData: [{        
-        name: '王小虎',
-        status:0
-      }],
+      data_id: "",
+      switch_disabled_id: "",
+      delete_disabled_id: "",
+      table_config: {
+        thead: [
+          { 
+            label: "LOGO", 
+            prop: "imgUrl",
+            type: "image",
+            imgWidth: 50,
+            width:80
+          },
+          { 
+            label: "车辆品牌", 
+            prop: "nameCh",
+            type: "function",
+            callback: (row, prop) => `${row.nameCh}/${row.nameEn}`
+          },
+          { 
+            label: "禁启用", 
+            prop: "status",
+            type: "slot",
+            slotName: "status",
+            width:80 
+          },
+          { 
+            label: "操作",
+            type: "slot",
+            slotName: "operate",
+            width: 150,
+            fixed: "right" 
+          }
+        ],
+        url: "brandList",
+        data:{
+          pageSize: 10,
+          pageNumber: 1
+        }
+      }
     }
+  },
+  methods:{
+    //搜索
+    search(){
+      const requestData={
+        pageSize:10,
+        pageNumber:1
+      };
+      if(this.form.brand) requestData.brand = this.form.brand;
+      this.$refs.table.requestData(requestData);
+    },
+    switchChange(data){
+      const requestData = {
+        id:data.id,
+        status:data.status
+      };
+      this.switch_disabled_id = data.id;
+      BrandStatus(requestData).then(response => {
+        this.$message.success(response.message);
+        this.switch_disabled_id = "";
+      }).catch(error => {
+        this.switch_disabled_id = "";
+      })
+    },
+    // 编辑
+    edit(id){
+      this.dialogFormVisible = true;
+      this.data_id = id;
+    },
+    //删除
+    delConfirm(id){
+      this.$confirm('确定删除此信息', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.delete_disabled_id = id;
+        BrandDelete({id:id}).then(response => {
+          this.$message.success(response.message);
+          this.$refs.table.requestData();
+          this.delete_disabled_id = "";
+        }).catch(error => {
+          this.delete_disabled_id = "";
+        })
+      }).catch(() => {});
+    },
   }
 }
 </script>
