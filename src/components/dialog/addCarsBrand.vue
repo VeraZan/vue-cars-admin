@@ -7,14 +7,8 @@
   @close="close"
   @opened="opened"
   >
-    <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-      <el-form-item label="品牌中文：" prop="nameCh">
-        <el-input v-model="form.nameCh"></el-input>
-      </el-form-item>
-      <el-form-item label="品牌英文：" prop="nameEn">
-        <el-input v-model="form.nameEn"></el-input>
-      </el-form-item>
-      <el-form-item label="LOGO：">
+    <VueForm ref="vuForm" :formItem="form_item" :formData="form_data" :formHandler="form_handler" labelWidth="120px">
+      <template v-slot:logo>
         <div class="upload-img-wrap">
           <div class="upload-img">
             <img v-show="logo_current" :src="logo_current">
@@ -25,26 +19,17 @@
             </li>
           </ul>
         </div>
-      </el-form-item>
-      <el-form-item label="禁启用：" prop="status">
-        <el-radio-group v-model="form.status">
-          <el-radio v-for="item in brand_status" :label="item.value" :key="item.value">{{ item.label }}</el-radio>
-        </el-radio-group>
-      </el-form-item>           
-      <el-form-item label="描述：" prop="content">
-        <el-input type="textarea" v-model="form.content"></el-input>
-      </el-form-item>
-    </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button type="danger" :loading="button_loading" @click="submit">确 定</el-button>
-    </div>
+      </template>
+    </VueForm>
   </el-dialog>
 </template>
 
 <script>
 import { BrandLogo,BrandAdd,BrandDetailed,BrandEdit } from "@/api/brand";
+import VueForm from "@c/form";
 export default {
   name:"AddCarsBrand",
+  components:{ VueForm },
   props:{
     flagVisible:{
       type:Boolean,
@@ -60,23 +45,39 @@ export default {
       dialogVisible:false,
       logo_current:"",
       logo:[],
-      brand_status: this.$store.state.config.parking_status,
-      button_loading: false,
-      form: {
+      brand_status: this.$store.state.config.radio_disabled,
+      form_data:{
         nameCh: '',
         nameEn: '',
         imgUrl: '',
         status: true,
         content: ''
       },
-      rules: {
-        nameCh: [
-          { required: true, message: '请输入品牌中文', trigger: 'change' },
-        ],
-        nameEn: [
-          { required: true, message: '请输入品牌英文', trigger: 'change' },
-        ]
-      }
+      form_item:[
+        { 
+          type:"Input",
+          label:"品牌中文",
+          prop:"nameCh",
+          required:true,
+        },
+        { 
+          type:"Input",
+          label:"品牌英文",
+          prop:"nameEn",
+          required:true,
+        },
+        { type:"Slot",slotName:"logo",label:"LOGO"},
+        { 
+          type:"Radio",
+          label:"禁启用",
+          prop:"status",
+          options:this.$store.state.config.radio_disabled,
+          value:true
+        }
+      ],
+      form_handler:[
+        { label:"确定",key:"submit",type:"danger", handler: () => this.submit()  }
+      ]
     }
   },
   methods:{
@@ -95,54 +96,52 @@ export default {
         BrandDetailed({id:this.id}).then(response => {
           const data = response.data;
           if(data){
-            Object.keys(this.form).forEach(item => {
-              if(data[item] !== undefined && data[item] !== null) this.form[item] = data[item];
+            Object.keys(this.form_data).forEach(item => {
+              if(data[item] !== undefined && data[item] !== null) this.form_data[item] = data[item];
             })
-            this.logo_current = this.form.imgUrl;
+            this.logo_current = this.form_data.imgUrl;
           }
         })
       }  
     },
     submit(){
-      this.button_loading = true;
-      this.$refs.form.validate((valid) => {
+      this.$refs.vuForm.$refs.form.validate((valid) => {
         if(valid) {
           this.id ? this.edit() : this.add();
         }else {
-          this.button_loading = false;
           return false;
         }
       });     
     },
     add(){
-      this.form.imgUrl = this.logo_current;
-      this.button_loading = true;
-      BrandAdd(this.form).then(response => {
+      this.form_data.imgUrl = this.logo_current;
+      BrandAdd(this.form_data).then(response => {
         this.$message.success(response.message);      
-        this.reset("form");
-        this.button_loading = false;
-      }).catch(error => {
-        this.button_loading = false;
+        this.close();    
+        this.$emit("callback", {
+          function: "search"
+        })
       })
     },
     edit(){
-      let requestData = JSON.parse(JSON.stringify(this.form));
+      this.form_data.imgUrl = this.logo_current;
+      let requestData = JSON.parse(JSON.stringify(this.form_data));
       requestData.id = this.id;
-      this.button_loading = true;
       BrandEdit(requestData).then(response => {
         this.$message.success(response.message);
-        this.button_loading = false;  
-        this.close();     
-      }).catch(error => {
-        this.button_loading = false;
+        this.close();   
+        this.$emit("callback", {
+          function: "search"
+        })  
       })
     },
     reset(formName){
-      this.$refs[formName].resetFields();
+      this.$refs.vuForm.$refs[formName].resetFields();
       this.logo_current = "";
     },
     close(){
       this.reset("form");
+      this.dialogVisible = false;
       this.$emit("update:flagVisible",false);
       this.$emit("update:id","");
     }

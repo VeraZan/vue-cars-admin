@@ -24,8 +24,6 @@
           v-model="slotData.data.status" 
           @change="switchChange(slotData.data)" 
           :disabled="slotData.data.id == switch_disabled_id"
-          :active-value="true" 
-          :inactive-value="false" 
           active-color="#13ce66" 
           inactive-color="#ff4949"
         > 
@@ -42,7 +40,7 @@
         </el-button>    
       </template>
     </TableData>
-    <AddCarsBrand :flagVisible.sync="dialogFormVisible" :id.sync="data_id" />
+    <AddCarsBrand :flagVisible.sync="dialogFormVisible" :id.sync="data_id" @callback="callbackComponent" />
   </div>
 </template>
 
@@ -101,6 +99,9 @@ export default {
     }
   },
   methods:{
+    callbackComponent(params){
+      if(params.function) { this[params.function](); }
+    },
     //搜索
     search(){
       const requestData={

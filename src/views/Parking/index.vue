@@ -48,9 +48,7 @@
         <el-switch 
           v-model="slotData.data.status" 
           @change="switchChange(slotData.data)" 
-          :disabled="slotData.data.id == switch_disabled_id"
-          :active-value="true" 
-          :inactive-value="false" 
+          :disabled="slotData.data.id == switch_disabled_id" 
           active-color="#13ce66" 
           inactive-color="#ff4949"
         > 
@@ -135,7 +133,7 @@ export default {
       delete_disabled_id:"",
       map_show:false,
       parking_data:{},
-      parking_status: this.$store.state.config.parking_status,
+      parking_status: this.$store.state.config.radio_disabled,
       parking_type: this.$store.state.config.parking_type,
       form: {
         status: "",
