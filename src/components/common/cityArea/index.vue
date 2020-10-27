@@ -4,7 +4,9 @@
     :props="cascader_props" 
     :class="{'cascader-input' : initValueFlag}" 
     :placeholder="initValue" 
-    @change="changeValue">
+    @change="changeValue" 
+    clearable
+  >
   </el-cascader>
 </template>
 
@@ -66,9 +68,11 @@ export default {
   methods:{
     changeValue(value){
       this.$emit("update:cityAreaValue",value.join());
-      const areaCode = value[value.length -1];
-      this.address[2] = this.addressObj.area.filter(item => item.value === areaCode)[0].label;
-      this.getAddress();
+      if(value.length !== 0){
+        const areaCode = value[value.length -1];
+        this.address[2] = this.addressObj.area.filter(item => item.value === areaCode)[0].label;
+        this.getAddress();
+      }     
     },
     // 获取中文地址
     getAddress(node){

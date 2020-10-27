@@ -29,15 +29,8 @@
         > 
         </el-switch>      
       </template>   
-      <template v-slot:operate="slotData">
-        <el-button type="danger" size="small" @click="edit(slotData.data.id)">编辑</el-button>
-        <el-button 
-          size="small" 
-          @click="delConfirm(slotData.data.id)" 
-          :loading="slotData.data.id == delete_disabled_id"
-        >
-          删除
-        </el-button>    
+      <template v-slot:operation="slotData">
+        <el-button type="danger" size="small" @click="edit(slotData.data.id)">编辑</el-button>       
       </template>
     </TableData>
     <AddCarsBrand :flagVisible.sync="dialogFormVisible" :id.sync="data_id" @callback="callbackComponent" />
@@ -84,8 +77,11 @@ export default {
           },
           { 
             label: "操作",
-            type: "slot",
-            slotName: "operate",
+            type: "operation",          
+            default: {
+              deleteButton: true
+            },
+            slotName: "operation",
             width: 150,
             fixed: "right" 
           }

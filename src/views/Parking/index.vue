@@ -4,33 +4,31 @@
       <el-row>
         <el-col :span="21">
           <el-form :inline="true" :model="form" class="demo-form-inline">
-             <el-form :inline="true" :model="form" class="demo-form-inline">
-                <el-form-item label="区域：">
-                  <CityArea :cityAreaValue.sync="form.area" />
-                </el-form-item>
-                <el-form-item label="类型：">
-                  <el-select v-model="form.type" placeholder="请选择" clearable class="width-120">
-                     <el-option v-for="item in parking_type" :label="item.label" :value="item.value" :key="item.value"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="禁启用：">
-                  <el-select v-model="form.status" placeholder="请选择" clearable class="width-120">
-                     <el-option v-for="item in parking_status" :label="item.label" :value="item.value" :key="item.value"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="关键字：">
-                  <el-select v-model="search_key" clearable placeholder="请选择" class="width-120">
-                    <el-option label="停车场名称" value="parkingName"></el-option>
-                    <el-option label="详细区域" value="address"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item >
-                    <el-input v-model="keyword" placeholder="请输入关键字"></el-input>
-                </el-form-item>                         
-                <el-form-item>
-                  <el-button type="danger" @click="search">搜索</el-button>
-                </el-form-item>
-            </el-form>
+            <el-form-item label="区域：">
+              <CityArea :cityAreaValue.sync="form.area" />
+            </el-form-item>
+            <el-form-item label="类型：">
+              <el-select v-model="form.type" placeholder="请选择" clearable class="width-120">
+                  <el-option v-for="item in parking_type" :label="item.label" :value="item.value" :key="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="禁启用：">
+              <el-select v-model="form.status" placeholder="请选择" clearable class="width-120">
+                  <el-option v-for="item in parking_status" :label="item.label" :value="item.value" :key="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="关键字：">
+              <el-select v-model="search_key" clearable placeholder="请选择" class="width-120">
+                <el-option label="停车场名称" value="parkingName"></el-option>
+                <el-option label="详细区域" value="address"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item >
+                <el-input v-model="keyword" placeholder="请输入关键字"></el-input>
+            </el-form-item>                         
+            <el-form-item>
+              <el-button type="danger" @click="search">搜索</el-button>
+            </el-form-item>
           </el-form>
         </el-col>
         <el-col :span="3">
@@ -56,16 +54,6 @@
       </template>
       <template v-slot:lnglat="slotData">
         <el-button type="success" size="mini" @click="showMap(slotData.data)">查看地图</el-button>    
-      </template>
-      <template v-slot:operate="slotData">
-        <el-button type="danger" size="small" @click="edit(slotData.data.id)">编辑</el-button>
-        <el-button 
-          size="small" 
-          @click="delConfirm(slotData.data.id)" 
-          :loading="slotData.data.id == delete_disabled_id"
-        >
-          删除
-        </el-button>    
       </template>
     </TableData>
     <ShowMapLocation :flagVisible.sync="map_show" :parking_data="parking_data" />
@@ -112,11 +100,16 @@ export default {
             type: "slot",
             slotName: "lnglat",
             width: 110 
-          },
-          { 
+          },         
+          {
             label: "操作",
-            type: "slot",
-            slotName: "operate",
+            type: "operation",
+            default: {
+              deleteButton: true,
+              editButton: true,
+              editButtonEvent:true,
+              editButtonLink: "ParkingAdd"
+            },
             width: 150,
             fixed: "right" 
           }

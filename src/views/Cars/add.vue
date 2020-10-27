@@ -3,10 +3,10 @@
     <VueForm ref="vueForm" :formItem="form_item" :formData="form_data" :formHandler="form_handler" labelWidth="120px">
        <template v-slot:maintain>
         <el-row :gutter="30">
-          <el-col :span="6">
+          <el-col :span="6" class="maintainDate_box">
              <el-date-picker v-model="form_data.maintainDate" value-format="yyyy-MM-dd" type="date" placeholder="选择日期"></el-date-picker>
           </el-col>
-          <el-col :span="6">下次保养日期：2020-12-12</el-col>
+          <!-- <el-col :span="6">下次保养日期：2020-12-12</el-col> -->
         </el-row>
       </template>
       <template v-slot:energy>
@@ -35,10 +35,10 @@
         <div class="cars-attr-list" v-for="(item,index) in cars_attr" :key="item.index">
         <el-row :gutter="10">
           <el-col :span="3">
-            <el-input v-model="item.attr_key"></el-input>
+            <el-input v-model="item.attr_key" placeholder="属性名"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-input v-model="item.attr_value"></el-input>
+            <el-input v-model="item.attr_value" placeholder="属性值"></el-input>
           </el-col>
           <el-col :span="6">          
             <el-button @click="delCarsAttr(index)">删除</el-button>
@@ -46,15 +46,11 @@
         </el-row>
         </div>
       </template>
-      <template v-slot:content>
-        <div ref="editorDom" style="text-align: left;"></div>
-      </template>
     </VueForm>
   </div>
 </template>
 <script>
-// 富文本编辑器
-import Editor from "wangeditor";
+
 // 组件
 import VueForm from "@c/form";
 // API
@@ -66,8 +62,6 @@ export default {
   data() {
     return {
       id: this.$route.query.id,
-      // 富文本对象
-      editor: null,
       cars_attr: [],
       form_item:[
         {
@@ -158,15 +152,15 @@ export default {
           label: "车辆属性"
         },
         { 
-          type: "Slot", 
-          slotName: "content", 
+          type: "Wangeditor", 
+          // slotName: "content", 
           prop:"content", 
           label: "车辆描述"
         }
       ],
       form_handler: [
         { label: "确定", key: "submit", type: "danger", handler: () => this.formValidate() },
-        { label: "重置", key: "reset", handler: () => $refs.vueForm.resetForm() }
+        { label: "重置", key: "reset", handler: () => this.$refs.vueForm.resetForm() }
       ],
       form_data: {
         parkingId: "",
@@ -191,9 +185,9 @@ export default {
   beforeMount(){
     this.getCarsBrandList();
     this.getParkingList();
+    this.getDetailed();
   },
   mounted() {
-    this.createEditor();
   },
   methods: {
     formValidate() {
@@ -228,7 +222,8 @@ export default {
             this.form_data[key] = data[key];
           }
         }
-        const carsAttr = JSON.parse(data.carsAttr);
+        // this.editor.txt.html(data.content);
+        const carsAttr = data.carsAttr ? JSON.parse(data.carsAttr) : [];
         const arr = [];
         for(let key in carsAttr) {
           const json = {}
@@ -283,14 +278,6 @@ export default {
       })
       this.form_data.carsAttr = JSON.stringify(carsAttr);
     },
-    /** 创建富文本对象 */
-    createEditor() {
-      this.editor = new Editor(this.$refs.editorDom);
-      this.editor.customConfig.onchange = html => {
-        this.form_data.content = html;
-      };
-      this.editor.create(); // 创建富文本实例
-    },
     changeEnergyType(value){
       this.form_data.electric = 0;
       this.form_data.oil = 0;
@@ -299,6 +286,12 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.maintainDate_box{
+  padding: 0 !important;
+  .el-date-editor{
+    width:100%;
+  }
+}
 .cars-attr-list { 
   margin-top: 15px;
   overflow:hidden;

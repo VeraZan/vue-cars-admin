@@ -11,12 +11,12 @@
         :disabled="item.disabled"
       ></el-input>
       <!-- 选择器 -->
-      <el-select v-if="item.type === 'Select'" v-model="formData[item.prop]" :placeholder="item.placeholder">
+      <el-select v-if="item.type === 'Select'" v-model="formData[item.prop]" filterable :placeholder="item.placeholder" :style="{ width:item.width }" >
         <el-option
           v-for="selectItem in item.options"
-          :key="selectItem.value || selectItem[item.select_value]"
+          :key="selectItem.value !== undefined ?  selectItem.value : selectItem[item.select_value]"
           :label="selectItem.label || selectItem[item.select_label]"
-          :value="selectItem.value || selectItem[item.select_value]">
+          :value="selectItem.value !== undefined ?  selectItem.value : selectItem[item.select_value]">
         </el-option>
       </el-select>
       <!-- 单选框 -->
@@ -31,8 +31,12 @@
       </el-radio-group>
       <!-- 计数器 -->
       <el-input-number v-if="item.type === 'InputNumber'" v-model.trim="formData[item.prop]" :min="item.min" :max="item.max"></el-input-number>
+      <!-- 富文本编辑器 -->
+      <template v-if="item.type === 'Wangeditor'">
+        <Wangeditor :isClear="wangeditorClear" ref="wangeditor" :value="formData[item.prop]" :content.sync="formData[item.prop]" />
+      </template>
       <!-- 插槽 -->
-      <slot :name="item.slotName"></slot>
+      <slot v-if="item.type === 'Slot'" :name="item.slotName"></slot>    
     </el-form-item>
     <el-form-item>
       <el-button 
@@ -48,6 +52,8 @@
 </template>
 
 <script>
+// 富文本
+import Wangeditor from "@c/common/wangeditor";
 export default {
   name:"VueForm",
   props:{
@@ -68,13 +74,18 @@ export default {
       default:() => []
     }
   },
+  components: { Wangeditor },
   data(){
     return{     
       type_msg: {
         "Input":"请输入",
         "InputNumber":"请输入",
-        "Radio":"请选择"
-      }
+        "Radio":"请选择",
+        "Checkbox":"请选择",
+        "Select":"请选择"
+      },
+      // 清除富文本
+      wangeditorClear: false 
     }
   },
   methods:{
@@ -86,7 +97,6 @@ export default {
         // 自定义检验规则
         if(item.validator) { item.rules = item.validator; }
       })
-      this.form = formData;
     },
     rules(item){
       const requiredRules = [{ required: true, message: item.required_msg || `${this.type_msg[item.type]}${item.label}`, trigger: 'change' }];
@@ -99,6 +109,8 @@ export default {
     },
     resetForm(){
       this.$refs.form.resetFields();
+      // 清除富文本内容
+      if(this.$refs.wangeditor) { this.wangeditorClear = !this.wangeditorClear; }
     }
   },
   watch:{
@@ -111,7 +123,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
