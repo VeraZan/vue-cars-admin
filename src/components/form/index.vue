@@ -31,10 +31,18 @@
       </el-radio-group>
       <!-- 计数器 -->
       <el-input-number v-if="item.type === 'InputNumber'" v-model.trim="formData[item.prop]" :min="item.min" :max="item.max"></el-input-number>
+      <!-- 省市区 -->
+      <template v-if="item.type === 'City'">
+        <CityArea ref="city" :cityAreaValue.sync="formData[item.prop]" />
+      </template>    
       <!-- 富文本编辑器 -->
       <template v-if="item.type === 'Wangeditor'">
         <Wangeditor :isClear="wangeditorClear" ref="wangeditor" :value="formData[item.prop]" :content.sync="formData[item.prop]" />
       </template>
+      <!-- 上传 -->
+      <template v-if="item.type === 'Upload'">
+        <Upload ref="upload" :imgUrl="formData[item.prop]" :value.sync="formData[item.prop]" />
+      </template>  
       <!-- 插槽 -->
       <slot v-if="item.type === 'Slot'" :name="item.slotName"></slot>    
     </el-form-item>
@@ -52,8 +60,10 @@
 </template>
 
 <script>
-// 富文本
+// 组件
+import CityArea from "@c/common/cityArea";
 import Wangeditor from "@c/common/wangeditor";
+import Upload from "@c/common/upload";
 export default {
   name:"VueForm",
   props:{
@@ -74,7 +84,7 @@ export default {
       default:() => []
     }
   },
-  components: { Wangeditor },
+  components: { CityArea,Wangeditor,Upload },
   data(){
     return{     
       type_msg: {
@@ -82,7 +92,8 @@ export default {
         "InputNumber":"请输入",
         "Radio":"请选择",
         "Checkbox":"请选择",
-        "Select":"请选择"
+        "Select":"请选择",
+        "Upload":"请上传"
       },
       // 清除富文本
       wangeditorClear: false 
@@ -90,7 +101,6 @@ export default {
   },
   methods:{
     initFormData(){
-      const formData = {};
       this.formItem.forEach(item => {
         // rules 规则
         if(item.required) { this.rules(item) };
@@ -109,13 +119,15 @@ export default {
     },
     resetForm(){
       this.$refs.form.resetFields();
+      // 清除省市区内容
+      if(this.$refs.city && this.$refs.city[0]) this.$refs.city[0].clear();
       // 清除富文本内容
       if(this.$refs.wangeditor) { this.wangeditorClear = !this.wangeditorClear; }
     }
   },
   watch:{
     formItem:{
-      handler(newValue,oldValue){
+      handler(newValue,oldValue){ 
         this.initFormData();
       },
       immediate:true
