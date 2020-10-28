@@ -3,6 +3,8 @@
     <FormSearch 
       v-if="table_config.search_form" 
       :formItem="table_config.form_item" 
+      :formHandler="table_config.form_handler" 
+      :formConfig="table_config.form_config"
       @callback="callbackComponent"
     >
     </FormSearch>
@@ -88,7 +90,9 @@ export default {
         pagination:true,
         search_form:true,
         data: {},
-        form_item:[]
+        form_item:[],
+        form_handler:[],
+        form_config:{}
       },
       // 页码
       total: 0,
@@ -120,7 +124,7 @@ export default {
     initConfig(){
       for(let key in this.config) {
         if(Object.keys(this.table_config).includes(key)) {
-          this.table_config[key] = this.config[key]
+          this.table_config[key] = this.config[key];
         }
       }
       // 配置完成后开始读取接口数据
