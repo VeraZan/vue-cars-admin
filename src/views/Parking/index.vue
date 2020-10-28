@@ -1,45 +1,5 @@
 <template>
   <div>
-    <div class="filter-form">
-      <el-row>
-        <el-col :span="21">
-          <el-form :inline="true" :model="form" class="demo-form-inline">
-            <el-form-item label="区域：">
-              <CityArea :cityAreaValue.sync="form.area" />
-            </el-form-item>
-            <el-form-item label="类型：">
-              <el-select v-model="form.type" placeholder="请选择" clearable class="width-120">
-                  <el-option v-for="item in parking_type" :label="item.label" :value="item.value" :key="item.value"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="禁启用：">
-              <el-select v-model="form.status" placeholder="请选择" clearable class="width-120">
-                  <el-option v-for="item in parking_status" :label="item.label" :value="item.value" :key="item.value"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="关键字：">
-              <el-select v-model="search_key" clearable placeholder="请选择" class="width-120">
-                <el-option label="停车场名称" value="parkingName"></el-option>
-                <el-option label="详细区域" value="address"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item >
-                <el-input v-model="keyword" placeholder="请输入关键字"></el-input>
-            </el-form-item>                         
-            <el-form-item>
-              <el-button type="danger" @click="search">搜索</el-button>
-            </el-form-item>
-          </el-form>
-        </el-col>
-        <el-col :span="3">
-          <div class="pull-right">
-            <router-link to="/parkingAdd">
-              <el-button type="danger">新增停车场</el-button>
-            </router-link>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
     <!-- 表格数据 -->
     <TableData :config="table_config" ref="table">
       <template v-slot:status="slotData">
@@ -118,6 +78,20 @@ export default {
         data:{
           pageSize: 10,
           pageNumber: 1
+        },
+        form_item:[
+          { label:"区域",prop:"area",type:"City" },
+          { label:"类型",prop:"parkingType",type:"Select",width:"120px",options:"parking_type"},
+          { label:"禁启用",prop:"status",type:"Select",width:"120px",options:"radio_disabled"},
+          { label:"关键字",type:"KeyWord",options:['parkingName','address']}
+        ],
+        form_handler: [
+          { label: "新增", prop: "add", type: "danger", element: "link", router: "/parkingAdd" }
+        ],
+        form_config: {
+          resetButton: true,
+          formCol:21,
+          handlerCol:3
         }
       },    
       search_key:"",
@@ -125,14 +99,7 @@ export default {
       switch_disabled_id:"",
       delete_disabled_id:"",
       map_show:false,
-      parking_data:{},
-      parking_status: this.$store.state.config.radio_disabled,
-      parking_type: this.$store.state.config.parking_type,
-      form: {
-        status: "",
-        area: "",
-        type: "",
-      }
+      parking_data:{}
     };
   },
   methods:{

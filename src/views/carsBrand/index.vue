@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="filter-form">
+    <!-- <div class="filter-form">
       <el-row>
         <el-col :span="18">
           <el-form :inline="true" :model="form" class="demo-form-inline">
@@ -16,7 +16,7 @@
           <el-button type="danger" class="pull-right" @click="dialogFormVisible = true">新增车辆品牌</el-button>
         </el-col>
       </el-row>
-    </div>
+    </div> -->
     <!-- 表格数据 -->
     <TableData :config="table_config" ref="table">
       <template v-slot:status="slotData">
@@ -47,9 +47,6 @@ export default {
   data(){
     return{
       dialogFormVisible: false,
-      form: {
-        brand: ''
-      },
       data_id: "",
       switch_disabled_id: "",
       delete_disabled_id: "",
@@ -90,6 +87,17 @@ export default {
         data:{
           pageSize: 10,
           pageNumber: 1
+        },
+        form_item:[
+          { label:"车辆品牌",prop:"brand",type:"Input" }
+        ],
+        form_handler: [
+          { label: "新增车辆品牌", prop: "add", type: "danger", element: "button", handler: () => this.dialogFormVisible = true }
+        ],
+        form_config: {
+          resetButton: true,
+          formCol:18,
+          handlerCol:6
         }
       }
     }

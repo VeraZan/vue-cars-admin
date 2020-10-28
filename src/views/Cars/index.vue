@@ -45,6 +45,12 @@ export default {
             width: 100
           },
           {
+            label: "车辆缩略图",
+            prop: "carsImg",
+            type: "image",
+            width: 100
+          },
+          {
             label: "年检",
             prop: "yearCheck",
             type: "function",
@@ -93,8 +99,17 @@ export default {
           { label:"区域",prop:"area",type:"City" },
           { label:"类型",prop:"parkingType",type:"Select",width:"120px",options:"parking_type"},
           { label:"禁启用",prop:"status",type:"Select",width:"120px",options:"radio_disabled"},
-          { label:"关键字",type:"KeyWord"}
-        ]
+          { label:"关键字",type:"KeyWord",options:['parkingName','address']}
+        ],
+        form_handler: [
+          { label: "新增", prop: "add", type: "danger", element: "link", router: "/carsAdd" },
+          // { label: "下载", prop: "down", type: "success", element: "button", handler: () => this.download() },
+        ],
+        form_config: {
+          resetButton: true,
+          formCol:21,
+          handlerCol:3
+        }
       },
       switch_disabled: "",    
       // 地图显示
@@ -116,7 +131,10 @@ export default {
       }).catch(error => {
         this.switch_disabled = "";
       });
-    },    
+    },   
+    download(){
+      alert("下载回调函数");
+    } 
   },
   // DOM元素渲染之前（生命周期）
   beforeMount() {},

@@ -106,6 +106,12 @@ export default {
           required: true
         },
         { 
+          type: "Upload", 
+          label: "缩略图", 
+          prop: "carsImg",
+          required: true
+        },
+        { 
           type: "Input", 
           label: "发动机号", 
           placeholder: "请输入发动机号",
@@ -168,6 +174,7 @@ export default {
         carsMode: "",
         carsNumber: "",
         carsFrameNumber: "",
+        carsImg: "",
         engineNumber: "",
         yearCheck: true,
         gear: 1,
