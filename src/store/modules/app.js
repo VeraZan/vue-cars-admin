@@ -23,7 +23,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       Login(repuestData).then((response) => {
         let data = response.data
-        console.log(data)
+        //console.log(data)
         content.commit('SET_TOKEN', data.token);
         content.commit('SET_USERNAME', data.username);
         setToken(data.token);
@@ -37,7 +37,7 @@ const actions = {
   logoutAction({ commit }) {
     return new Promise((resolve, reject) => {
       Logout().then(response => {
-        console.log(response)
+        //console.log(response)
         removeToken();
         removeUsername();
         commit('SET_TOKEN', '');

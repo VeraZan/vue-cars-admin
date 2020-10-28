@@ -171,7 +171,7 @@ export default {
       code_text.value = "发送中";
       code_loading.value = true;
       GetCode(requestData).then(response => {
-        console.log(response)  // 这里打印拦截器返回的信息，response是自定义参数。
+        //console.log(response)  // 这里打印拦截器返回的信息，response是自定义参数。
         root.$message({
           message: response.message,
           type: "success"
@@ -208,10 +208,7 @@ export default {
         code: form.code
       }
       root.$store.dispatch('app/loginAction', requestData).then(response => {
-        root.$message({
-          message: response.message,
-          type: "success"
-        })
+        root.$message(response.message);
         // 页面跳转
         root.$router.push({ name: 'ConsoleIndex' })
       }).catch(error => {
@@ -227,10 +224,7 @@ export default {
         code: form.code
       }
       Register(requestData).then(response => {
-        root.$message({
-          message: response.message,
-          type: "success"
-        })
+        root.$message.success(response.message);
         // 重置数据
         reset();
       }).catch(error => {
