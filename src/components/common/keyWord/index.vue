@@ -2,7 +2,7 @@
   <el-row :gutter="10">
     <el-col :span="8">
       <el-select v-model="search_key" clearable placeholder="请选择" @change="inputEnter">
-        <el-option v-for="item in search_options" :label="item.label" :value="item.value"></el-option>
+        <el-option v-for="item in search_options" :label="item.label" :value="item.value" :key="item.value"></el-option>
       </el-select>
     </el-col>
     <el-col :span="16">
@@ -42,6 +42,11 @@
         keyword.key = this.search_key;
         keyword.value = this.search_value;
         this.$emit("update:value", keyword);
+      },
+      clear(){
+        this.search_key = "";
+        this.search_value = "";
+        this.inputEnter();
       }
     },
     watch:{
