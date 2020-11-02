@@ -8,6 +8,7 @@
       @callback="callbackComponent"
     >
     </FormSearch>
+    <slot name="otherContent"></slot>
     <el-table v-loading="loading_table" element-loading-text="加载中" :data="table_data" border style="width: 100%;">
       <el-table-column v-if="table_config.checkbox" type="selection" width="35" fixed="left"></el-table-column>
       <template v-for="item in this.table_config.thead">
@@ -80,10 +81,12 @@ export default {
   data(){
     return{
       // 加载提示
-      loading_table: true,
+      loading_table: false,
       // tableData
       table_data: [],
       table_config: {
+        //初始化是否请求接口
+        isRequest:true,
         thead: [],
         checkbox: true,
         url: "",
@@ -128,7 +131,7 @@ export default {
         }
       }
       // 配置完成后开始读取接口数据
-      this.loadData();
+      this.table_config.isRequest && this.loadData();
     },
     loadData(){
       let requestData = {
