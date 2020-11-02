@@ -31,7 +31,7 @@
         </div>
       </template>
       <template v-slot:carsAttr>
-        <el-button type="primary" @click="addCarsAttr">添加汽车属性</el-button>
+        <!-- <el-button type="primary" @click="addCarsAttr">添加汽车属性</el-button>
         <div class="cars-attr-list" v-for="(item,index) in cars_attr" :key="item.index">
         <el-row :gutter="10">
           <el-col :span="3">
@@ -44,7 +44,8 @@
             <el-button @click="delCarsAttr(index)">删除</el-button>
           </el-col>
         </el-row>
-        </div>
+        </div> -->
+        <CarsAttr />
       </template>
     </VueForm>
   </div>
@@ -53,12 +54,13 @@
 
 // 组件
 import VueForm from "@c/form";
+import CarsAttr from "./component/carsAttr";
 // API
 import { GetCarsBrand, GetParking } from "@/api/common";
 import { CarsAdd, CarsDetailed, CarsEdit } from "@/api/cars";
 export default {
   name: "CarsAdd",
-  components:{ VueForm },
+  components:{ VueForm,CarsAttr },
   data() {
     return {
       id: this.$route.query.id,

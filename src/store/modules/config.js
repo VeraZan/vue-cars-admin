@@ -24,7 +24,7 @@ const state = {
     { label: "自动", value: 2 },
     { label: "人工智能", value: 3 }
   ],
-  // 能源类型
+  // 能源类型 
   energy_type: [
     { label: "电", value: 1 },
     { label: "油", value: 2 },
@@ -33,7 +33,9 @@ const state = {
   //关键字
   keyword_options:[
     { label: "停车场名称", value:"parkingName" },
-    { label: "详细区域", value:"address" }
+    { label: "详细区域", value:"address" },
+    { label: "字段", value:"key" },
+    { label: "文本", value:"value" }
   ]
 }
 export default {
