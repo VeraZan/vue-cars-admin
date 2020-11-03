@@ -1,6 +1,6 @@
 <template>
   <el-dialog 
-    title="车辆自定义属性添加"
+    title="新增租车类型"
     class="cars-dialog-center" 
     :visible.sync="dialogVisible" 
     :close-on-click-modal="false"
@@ -19,7 +19,7 @@
 
 <script>
 import VueForm from "@c/form";
-import { CarsAttrAdd } from "@/api/carsAttr";
+import { LeaseAdd } from "@/api/lease";
 export default {
   name:"AddCarsAttr",
   components:{ VueForm },
@@ -27,38 +27,34 @@ export default {
     flagVisible:{
       type:Boolean,
       default:false
-    },
-    data:{
-      type:Object,
-      default:() => {}
     }
   },
   data(){
     return{
       dialogVisible:false,
       form_data:{
-        key: "",
-        value: "",
-        typeValue:""
+        carsLeaseTypeName: "",
+        carsLeaseStatus: true,
+        carsLeaseDesc:""
       },
       form_item:[
         { 
           type:"Input",
-          label:"当前属性",
-          prop:"typeValue",
-          disabled:true,
-        },
-        { 
-          type:"Input",
-          label:"字段",
-          prop:"key",
+          label:"租赁类型",
+          prop:"carsLeaseTypeName",
           required:true,
         },
         { 
-         type:"Input",
-          label:"文本",
-          prop:"value",
+          type:"Radio",
+          label:"禁启用状态",
+          prop:"carsLeaseStatus",
+          options:this.$store.state.config.radio_disabled,
           required:true,
+        },
+        { 
+          type:"Textarea",
+          label:"描述",
+          prop:"carsLeaseDesc"
         }
       ],
       form_handler:[
@@ -76,13 +72,8 @@ export default {
         }
       });   
     },
-    add(){
-      const requestData = {
-        typeId:this.data.id,
-        key:this.form_data.key,
-        value:this.form_data.value
-      };
-      CarsAttrAdd(requestData).then(response => {
+    add(){     
+      LeaseAdd(this.form_data).then(response => {
         this.$message.success(response.message);
         this.reset();
       })
@@ -93,21 +84,13 @@ export default {
     close(){
       this.reset();
       this.dialogVisible = false;
-      this.$emit("update:flagVisible",false);
-      this.$emit("callback", {
-        function: "getCarsAttrList"
-      })
+      this.$emit("update:flagVisible",false);      
     }
   },
   watch:{
     flagVisible:{
       handler(newValue,oldValue){
         this.dialogVisible = newValue;
-      }
-    },
-    data:{
-      handler(newValue,oldValue){
-        this.form_data.typeValue = newValue.value;
       }
     }
   }

@@ -9,7 +9,23 @@
         :style="{ width:item.width }"       
         :readonly="item.readonly" 
         :disabled="item.disabled"
-      ></el-input>
+      >
+        <template slot="prepend" v-if="item.prepend">{{ item.prepend }}</template>
+        <template slot="append" v-if="item.append">{{ item.append }}</template>
+      </el-input>
+      <!-- 文本框 -->
+      <el-input 
+        v-if="item.type === 'Textarea'" 
+        type="textarea" 
+        v-model.trim="formData[item.prop]" 
+        :placeholder="item.placeholder" 
+        :style="{ width:item.width }"       
+        :readonly="item.readonly" 
+        :disabled="item.disabled"
+      >
+        <template slot="prepend" v-if="item.prepend">{{ item.prepend }}</template>
+        <template slot="append" v-if="item.append">{{ item.append }}</template>
+      </el-input>
       <!-- 选择器 -->
       <el-select v-if="item.type === 'Select'" v-model="formData[item.prop]" filterable :placeholder="item.placeholder" :style="{ width:item.width }" >
         <el-option

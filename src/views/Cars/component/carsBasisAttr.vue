@@ -39,7 +39,10 @@ export default {
     },
     getCarsAttrList(){
       GetCarsAttrList({ typeId:this.current_cars_attr_type.id }).then(response => {
-        this.$emit("getAttrList",response.data.data);
+        this.$emit("getAttrList",{
+          attr_basis_data: this.current_cars_attr_type,
+          attr_data: response.data.data
+        });
       })
     }
   },

@@ -45,7 +45,13 @@
           </el-col>
         </el-row>
         </div> -->
-        <CarsAttr />
+        <CarsAttr 
+          ref="carsAttr" 
+          :initValue="form_data.carsAttr" 
+          :value.sync="form_data.carsAttr" 
+          :oil="form_data.oil" 
+          :countKm.sync="form_data.countKm" 
+        />
       </template>
     </VueForm>
   </div>
@@ -147,17 +153,24 @@ export default {
           label: "能源类型"
         },
         { 
-          type: "Radio", 
-          label: "禁启用", 
-          prop: "status",
-          options:this.$store.state.config.radio_disabled,
-          value:true
-        },
-        { 
           type: "Slot", 
           slotName: "carsAttr", 
           prop:"carsAttr", 
           label: "车辆属性"
+        },
+        { 
+          type: "Input", 
+          label: "可行驶公里数", 
+          placeholder: "将根据配置的油量，实测油耗和油箱容积计算得出",
+          prop: "countKm",
+          append:"km",
+          readonly:true
+        },
+        { 
+          type: "Radio", 
+          label: "禁启用", 
+          prop: "status",
+          options:this.$store.state.config.radio_disabled
         },
         { 
           type: "Wangeditor", 
@@ -186,7 +199,8 @@ export default {
         carsAttr: "",
         content: "",
         maintainDate: "",
-        status: true
+        status: true,
+        countKm:""
       },
       energyType:this.$store.state.config.energy_type
     };
@@ -232,15 +246,15 @@ export default {
           }
         }
         // this.editor.txt.html(data.content);
-        const carsAttr = data.carsAttr ? JSON.parse(data.carsAttr) : [];
-        const arr = [];
-        for(let key in carsAttr) {
-          const json = {}
-          json.attr_key = key;
-          json.attr_value = carsAttr[key];
-          arr.push(json)
-        }
-        this.cars_attr = arr;
+        // const carsAttr = data.carsAttr ? JSON.parse(data.carsAttr) : [];
+        // const arr = [];
+        // for(let key in carsAttr) {
+        //   const json = {}
+        //   json.attr_key = key;
+        //   json.attr_value = carsAttr[key];
+        //   arr.push(json)
+        // }
+        // this.cars_attr = arr;
       })
     },
     // 获取车辆品牌
@@ -268,24 +282,25 @@ export default {
       })
     },
     /** 添加车辆属性 */
-    addCarsAttr() {
-      this.cars_attr.push({ attr_key: "", attr_value: "" });
-    },
+    // addCarsAttr() {
+    //   this.cars_attr.push({ attr_key: "", attr_value: "" });
+    // },
     /** 删除车辆属性 */
-    delCarsAttr(index){
-      this.cars_attr.splice(index, 1); // 第一个参数：指定数组索引位置， 第二参数：从指定位置开始删除多少个。删除数组的指定元素
-    },
+    // delCarsAttr(index){
+    //   this.cars_attr.splice(index, 1); // 第一个参数：指定数组索引位置， 第二参数：从指定位置开始删除多少个。删除数组的指定元素
+    // },
     /** 车辆属性格式化 */
     formatCarsAttr(){
-      const data = this.cars_attr;
-      if(data && data.length === 0) { return false; }
-      const carsAttr = {};
-      data.forEach(item => {
-        if(item.attr_key) {
-          carsAttr[item.attr_key] = item.attr_value
-        }
-      })
-      this.form_data.carsAttr = JSON.stringify(carsAttr);
+      // const data = this.cars_attr;
+      // if(data && data.length === 0) { return false; }
+      // const carsAttr = {};
+      // data.forEach(item => {
+      //   if(item.attr_key) {
+      //     carsAttr[item.attr_key] = item.attr_value
+      //   }
+      // })
+      // this.form_data.carsAttr = JSON.stringify(carsAttr);
+      this.$refs.carsAttr.callbackValue();
     },
     changeEnergyType(value){
       this.form_data.electric = 0;

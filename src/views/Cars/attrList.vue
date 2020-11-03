@@ -35,7 +35,7 @@ export default {
         checkbox: false,
         pagination:false,
         thead: [
-          { label: "字段", prop: "key",width:200 },        
+          { label: "字段", prop: "key",width:250 },        
           { label: "文本", prop: "value" }  
         ],
         url: "carsAttrList", 
