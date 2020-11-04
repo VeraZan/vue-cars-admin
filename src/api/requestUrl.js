@@ -6,5 +6,6 @@ export const requestUrl = {
   carsList: "/cars/list/",
   carsListDelete: "/cars/delete/",
   carsAttrList: "/carsAttr/list/",
-  leaseList:"/lease/list/"
+  leaseList:"/lease/list/",
+  leaseListDelete:"/lease/delete/"
 }

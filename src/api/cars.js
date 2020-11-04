@@ -9,6 +9,15 @@ export function CarsAdd(data = {}){
   })
 }
 
+/** 添加（含租赁类型） */
+export function CarsInfoAdd(data = {}){
+  return service.request({
+    method: "post",
+    url: "/cars/carsInfoAdd/",
+    data
+  })
+}
+
 /** 禁启用状态 */
 export function CarsStatus(data = {}){
   return service.request({
@@ -27,7 +36,7 @@ export function CarsDelete(data = {}){
   })
 }
 
-/** 删除 */
+/** 详情 */
 export function CarsDetailed(data = {}){
   return service.request({
     method: "post",
@@ -36,11 +45,29 @@ export function CarsDetailed(data = {}){
   })
 }
 
-/** 删除 */
+/** 详情（含租赁类型） */
+export function CarsInfoDetailed(data = {}){
+  return service.request({
+    method: "post",
+    url: "/cars/carsDetailed/",
+    data
+  })
+}
+
+/** 编辑 */
 export function CarsEdit(data = {}){
   return service.request({
     method: "post",
     url: "/cars/edit/",
+    data
+  })
+}
+
+/** 编辑（含租赁类型） */
+export function CarsInfoEdit(data = {}){
+  return service.request({
+    method: "post",
+    url: "/cars/carsInfoEdit/",
     data
   })
 }

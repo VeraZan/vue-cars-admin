@@ -31,20 +31,6 @@
         </div>
       </template>
       <template v-slot:carsAttr>
-        <!-- <el-button type="primary" @click="addCarsAttr">添加汽车属性</el-button>
-        <div class="cars-attr-list" v-for="(item,index) in cars_attr" :key="item.index">
-        <el-row :gutter="10">
-          <el-col :span="3">
-            <el-input v-model="item.attr_key" placeholder="属性名"></el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-input v-model="item.attr_value" placeholder="属性值"></el-input>
-          </el-col>
-          <el-col :span="6">          
-            <el-button @click="delCarsAttr(index)">删除</el-button>
-          </el-col>
-        </el-row>
-        </div> -->
         <CarsAttr 
           ref="carsAttr" 
           :initValue="form_data.carsAttr" 
@@ -52,6 +38,14 @@
           :oil="form_data.oil" 
           :countKm.sync="form_data.countKm" 
         />
+      </template>
+      <template v-slot:leaseList>
+        <el-row :gutter="10" style="overflow: hidden;">
+          <el-col :span="6" v-for="item in lease_list" :key="item.carsLeaseTypeId">
+            <div>{{ item.carsLeaseTypeName }}</div>
+            <el-input-number v-model="item.price" :min="0" controls-position="right" style="width:100%;"></el-input-number>
+          </el-col>
+        </el-row>
       </template>
     </VueForm>
   </div>
@@ -63,7 +57,8 @@ import VueForm from "@c/form";
 import CarsAttr from "./component/carsAttr";
 // API
 import { GetCarsBrand, GetParking } from "@/api/common";
-import { CarsAdd, CarsDetailed, CarsEdit } from "@/api/cars";
+import { CarsInfoDetailed, CarsInfoEdit,CarsInfoAdd } from "@/api/cars";
+import { LeaseList } from "@/api/lease";
 export default {
   name: "CarsAdd",
   components:{ VueForm,CarsAttr },
@@ -71,6 +66,7 @@ export default {
     return {
       id: this.$route.query.id,
       cars_attr: [],
+      lease_list:[],
       form_item:[
         {
           type: "Select", 
@@ -177,6 +173,12 @@ export default {
           // slotName: "content", 
           prop:"content", 
           label: "车辆描述"
+        },
+        { 
+          type: "Slot", 
+          slotName: "leaseList", 
+          prop:"leasePrice", 
+          label: "租赁价格"
         }
       ],
       form_handler: [
@@ -209,6 +211,7 @@ export default {
     this.getCarsBrandList();
     this.getParkingList();
     this.getDetailed();
+    this.getLeaseList();
   },
   mounted() {
   },
@@ -222,12 +225,12 @@ export default {
       });
     },
     edit(){
-      CarsEdit({...this.form_data, id: this.id}).then(response => {
+      CarsInfoEdit({...this.form_data,leasePrice:this.lease_list,id: this.id}).then(response => {
         this.$message.success(response.message)
       })
     },
     add(){
-      CarsAdd(this.form_data).then(response => {
+      CarsInfoAdd({...this.form_data,leasePrice:this.lease_list}).then(response => {
         this.$message.success(response.message);
         this.$refs.vueForm.resetForm();
         this.cars_attr = [];
@@ -237,24 +240,15 @@ export default {
      /** 获取详情 */
     getDetailed(){
       if(!this.id) { return false; }
-      CarsDetailed({id: this.id}).then(response => {
+      CarsInfoDetailed({id: this.id}).then(response => {
         const data = response.data;
         if(!data) { return false };
+        this.lease_list = data.leasePrice;
         for(let key in data) {
           if(Object.keys(this.form_data).includes(key)) {
             this.form_data[key] = data[key];
           }
         }
-        // this.editor.txt.html(data.content);
-        // const carsAttr = data.carsAttr ? JSON.parse(data.carsAttr) : [];
-        // const arr = [];
-        // for(let key in carsAttr) {
-        //   const json = {}
-        //   json.attr_key = key;
-        //   json.attr_value = carsAttr[key];
-        //   arr.push(json)
-        // }
-        // this.cars_attr = arr;
       })
     },
     // 获取车辆品牌
@@ -281,25 +275,16 @@ export default {
         }
       })
     },
-    /** 添加车辆属性 */
-    // addCarsAttr() {
-    //   this.cars_attr.push({ attr_key: "", attr_value: "" });
-    // },
-    /** 删除车辆属性 */
-    // delCarsAttr(index){
-    //   this.cars_attr.splice(index, 1); // 第一个参数：指定数组索引位置， 第二参数：从指定位置开始删除多少个。删除数组的指定元素
-    // },
+    //获取租赁类型
+    getLeaseList(){
+      if(this.id) return false;
+      LeaseList().then(response => {
+        const data = response.data.data;
+        if(data) this.lease_list = data;
+      })
+    },
     /** 车辆属性格式化 */
     formatCarsAttr(){
-      // const data = this.cars_attr;
-      // if(data && data.length === 0) { return false; }
-      // const carsAttr = {};
-      // data.forEach(item => {
-      //   if(item.attr_key) {
-      //     carsAttr[item.attr_key] = item.attr_value
-      //   }
-      // })
-      // this.form_data.carsAttr = JSON.stringify(carsAttr);
       this.$refs.carsAttr.callbackValue();
     },
     changeEnergyType(value){

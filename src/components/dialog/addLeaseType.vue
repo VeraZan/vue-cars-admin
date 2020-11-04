@@ -1,9 +1,10 @@
 <template>
   <el-dialog 
-    title="新增租车类型"
+    :title="this.id ? '编辑租车类型':'新增租车类型'"
     class="cars-dialog-center" 
-    :visible.sync="dialogVisible" 
-    :close-on-click-modal="false"
+    :visible.sync="dialog_visible" 
+    :close-on-click-modal="false" 
+    @opened="opened" 
     @close="close"
   >
     <VueForm 
@@ -19,7 +20,7 @@
 
 <script>
 import VueForm from "@c/form";
-import { LeaseAdd } from "@/api/lease";
+import { LeaseAdd,LeaseEdit } from "@/api/lease";
 export default {
   name:"AddCarsAttr",
   components:{ VueForm },
@@ -27,11 +28,19 @@ export default {
     flagVisible:{
       type:Boolean,
       default:false
+    },
+    id:{
+      type:String,
+      default:""
+    },
+    data:{
+      type:Object,
+      default:()=>{}
     }
   },
   data(){
     return{
-      dialogVisible:false,
+      dialog_visible:false,
       form_data:{
         carsLeaseTypeName: "",
         carsLeaseStatus: true,
@@ -66,7 +75,7 @@ export default {
     submit(){
       this.$refs.vuForm.$refs.form.validate((valid) => {
         if(valid) {
-          this.add();
+          this.id ? this.edit() : this.add();
         }else {
           return false;
         }
@@ -75,7 +84,15 @@ export default {
     add(){     
       LeaseAdd(this.form_data).then(response => {
         this.$message.success(response.message);
-        this.reset();
+        this.close();
+        this.$store.commit("common/SET_TABLE_DATA_FLAG");
+      })
+    },
+    edit(){     
+      LeaseEdit({ ...this.form_data,carsLeaseTypeId:this.id }).then(response => {
+        this.$message.success(response.message);
+        this.close();
+        this.$store.commit("common/SET_TABLE_DATA_FLAG");
       })
     },
     reset(){
@@ -84,15 +101,31 @@ export default {
     close(){
       this.reset();
       this.dialogVisible = false;
-      this.$emit("update:flagVisible",false);      
+      this.$emit("update:flagVisible",false);    
+      this.$emit("update:id","");  
+      this.$emit("update:data",{});  
+    },
+    opened(){
+      this.getDetailed()
+    },
+    getDetailed(){    
+      if(!this.id) { return false; }  
+      if(Object.keys(this.data).length !== 0){
+        for(let item in this.form_data){
+          this.form_data[item] = this.data[item];
+        }
+      }
     }
   },
   watch:{
     flagVisible:{
       handler(newValue,oldValue){
-        this.dialogVisible = newValue;
+        this.dialog_visible = newValue;
       }
     }
+  },
+  beforeMount(){
+    
   }
 }
 </script>
