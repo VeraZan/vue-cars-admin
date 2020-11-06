@@ -1,6 +1,6 @@
 <template>
   <div>
-<h1 class="logo"><img src="../../../assets/logo.png" alt="" :class="{'mini-logo': collapse}"></h1>
+    <h1 class="logo"><img src="../../../assets/logo.png" alt="" :class="{'mini-logo': collapse}"></h1>
     <el-menu :collapse="collapse" :default-active="defalutActive" class="el-menu-vertical-demo" background-color="#344a5f" text-color="#fff" active-text-color="#fff" router unique-opened>
       <template v-for="(item, index) in router">
         <el-submenu v-if="!item.hidden" :key="item.id" :index="index + ''">
@@ -9,9 +9,11 @@
             <span>{{ item.meta ? item.meta.title : "" }}</span>
           </template>
           <template v-if="item.children && item.children.length > 0">
-            <el-menu-item v-for="sub in item.children" :key="sub.id" :index="sub.path">
-              {{ sub.meta ? sub.meta.title : ""}}
-            </el-menu-item>
+            <template v-for="sub in item.children">
+              <el-menu-item :key="sub.id" :index="sub.path" v-if="!sub.hidden">
+                {{ sub.meta ? sub.meta.title : ""}}
+              </el-menu-item>
+            </template>
           </template>
         </el-submenu>
       </template>

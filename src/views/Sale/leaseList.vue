@@ -28,7 +28,7 @@ export default {
             label: "操作",
             type: "operation",   
             buttonGroup:[
-              { label:"编辑",type:"danger",event:"button",handler:(data)=>this.edit(data)}
+              { label:"编辑",type:"danger",element:"button",handler:(data)=>this.edit(data)}
             ],
             width: 150,
             fixed: "right" 

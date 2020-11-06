@@ -32,8 +32,10 @@
               @change="item.handler && item.handler(scope.row)" 
               :active-value="item.on || true" 
               :inactive-value="item.off || false" 
-              active-color="#13ce66"
-              inactive-color="#ff4949"
+              :active-color="item.activeColor || '#13ce66'"
+              :inactive-color="item.inactiveColor || '#ff4949'" 
+              :active-text="item.activeText || ''" 
+              :inactive-text="item.inactiveText || ''" 
             >
             </el-switch>
           </template>
@@ -52,7 +54,7 @@
               <template v-for="button in item.buttonGroup">
                 <!-- 单击事件 -->
                 <el-button 
-                  v-if="button.event === 'button'" 
+                  v-if="button.element === 'button'" 
                   :key="button.id" 
                   :type="button.type" 
                   @click="button.handler && button.handler(scope.row)" 
@@ -62,7 +64,7 @@
                 </el-button>
                 <!-- 路由跳转 -->
                 <router-link 
-                  v-if="button.event === 'link'" 
+                  v-if="button.element === 'link'" 
                   :key="button.id" 
                   :to="{name: button.name, query: { [button.key]: scope.row[button.value || button.key] }}" 
                   class="mr-10"
@@ -225,9 +227,9 @@ export default {
       }).catch(() => {});
     },
     /** 编辑 */
-    edit(id, routerNmae){
+    edit(id, routerName){
       this.$router.push({
-        name: routerNmae,
+        name: routerName,
         query: {
           id
         }

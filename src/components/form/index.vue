@@ -46,7 +46,7 @@
         </el-radio>
       </el-radio-group>
       <!-- 计数器 -->
-      <el-input-number v-if="item.type === 'InputNumber'" v-model.trim="formData[item.prop]" :min="item.min" :max="item.max"></el-input-number>
+      <el-input-number v-if="item.type === 'InputNumber'" v-model.trim="formData[item.prop]" :min="item.min || 0" :max="item.max" :controls-position="item.position"></el-input-number>
       <!-- 省市区 -->
       <template v-if="item.type === 'City'">
         <CityArea ref="city" :cityAreaValue.sync="formData[item.prop]" />

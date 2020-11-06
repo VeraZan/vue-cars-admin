@@ -30,6 +30,16 @@ const state = {
     { label: "油", value: 2 },
     { label: "混合动力", value: 3 }
   ],
+  // 性别
+  gender: [
+    { label: "男", value: 1 },
+    { label: "女", value: 2 }
+  ],
+   // 黑名单
+  blacklist: [
+    { label: "是", value: true },
+    { label: "否", value: false }
+  ],
   //关键字
   keyword_options:[
     { label: "停车场名称", value:"parkingName" },
@@ -37,7 +47,10 @@ const state = {
     { label: "字段", value:"key" },
     { label: "文本", value:"value" },
     { label: "租车类型", value:"carsLeaseTypeName" },
-    { label: "车牌号", value:"carsNumber" }
+    { label: "车牌号", value:"carsNumber" },
+    { label: "用户名", value:"username" },
+    { label: "真实姓名", value:"truename" },
+    { label: "身份证", value:"card_id" }
   ]
 }
 export default {
