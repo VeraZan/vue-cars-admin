@@ -25,6 +25,10 @@ export default {
     value:{
       type: String,
 			default: ""
+    },
+    requestFlag:{
+      type: Boolean,
+			default: false
     }
 	},
 	data() {
@@ -34,7 +38,7 @@ export default {
 		};
   },
 	beforeMount(){
-		this.getQiniuToken();
+		this.requestFlag && this.getQiniuToken();
 	},
 	methods: {
 		getQiniuToken() {
@@ -47,7 +51,8 @@ export default {
 			GetQiniuToken(requestData).then(response => {
 				const data = response.data;
 				if (data.token) {
-					this.uploadData.token = data.token;
+          this.$store.commit("common/SET_UPLOAD_TOKEN",data.token);
+					// this.uploadData.token = data.token;
 				}
 			});
 		},
@@ -67,7 +72,8 @@ export default {
 			}
 			let fileName = file.name;
 			let key = encodeURI(fileName);
-			this.uploadData.key = key;
+      this.uploadData.key = key;
+      this.uploadData.token = this.$store.state.common.upload_token;
 			return isJPG && isLt2M;
 		}
 	},

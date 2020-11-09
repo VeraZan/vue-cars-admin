@@ -38,6 +38,7 @@
               :inactive-text="item.inactiveText || ''" 
             >
             </el-switch>
+            <slot :name="item.slotName" :data="scope.row" :prop="item.prop" :label="item.label"></slot>
           </template>
         </el-table-column>
         <!--图片-->

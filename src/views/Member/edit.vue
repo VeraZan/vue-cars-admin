@@ -8,14 +8,27 @@
 
 <script>
 import VueForm from "@c/form";
-import { MemberDetailed } from "@/api/member";
+import { MemberDetailed,MemberEdit } from "@/api/member";
+import { formatRequestData } from "@/utils/format";
 export default {
   name:"MemberEdit",
   components:{ VueForm },
   data(){
     return {
       id:this.$route.query.id,
-      form_data:{},
+      form_data:{
+        blacklist: false,
+        cardId: "",
+        cardPhotoBack: "",
+        cardPhotoBareheaded: "",
+        cardPhotoFace: "",
+        carsPhotoBack: "",
+        carsPhotoFace: "",
+        gender: 2,
+        illegalAmount: 0,
+        truename: "",
+        username: "",
+      },
       form_item:[
         { 
           type:"Input",
@@ -57,31 +70,32 @@ export default {
           type:"Upload",
           label:"身份证（正面）",
           prop:"cardPhotoFace",
-          required:true
+          // required:true,
+          requestFlag:true
         },
         { 
           type:"Upload",
           label:"身份证（背面）",
           prop:"cardPhotoBack",
-          required:true
+          // required:true
         },
         { 
           type:"Upload",
           label:"身份证（免冠）",
           prop:"cardPhotoBareheaded",
-          required:true
+          // required:true
         },
         { 
           type:"Upload",
           label:"驾驶证（正面）",
           prop:"carsPhotoFace",
-          required:true
+          // required:true
         },
         { 
           type:"Upload",
           label:"驾驶证（反面）",
           prop:"carsPhotoBack",
-          required:true
+          // required:true
         },
         { 
           type:"Radio",
@@ -91,14 +105,29 @@ export default {
         },
       ],
       form_handler:[
-        { label:"确定",key:"submit",type:"danger" }
+        { label:"确定",key:"submit",type:"danger",handler:() => this.formValidate() }
       ]
     }
   },
   methods:{
     detailed(){
       MemberDetailed({ id:this.id }).then(response => {
-        this.form_data = response.data;
+        this.form_data = formatRequestData(this.form_data,response.data);
+      })
+    },
+    formValidate(){
+      this.$refs.vuForm.$refs.form.validate((valid) => {
+        if (valid) {
+          this.id && this.edit();
+        }
+      });
+    },
+    edit(){
+      MemberEdit({...this.form_data,id:this.id}).then(response => {
+        this.$message.success(response.message);
+        this.$router.push({
+          name: "MemberList"
+        })
       })
     }
   },

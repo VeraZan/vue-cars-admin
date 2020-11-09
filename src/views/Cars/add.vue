@@ -113,7 +113,8 @@ export default {
           type: "Upload", 
           label: "缩略图", 
           prop: "carsImg",
-          required: true
+          required: true,
+          requestFlag:true
         },
         { 
           type: "Input", 

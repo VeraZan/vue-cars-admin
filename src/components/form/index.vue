@@ -57,7 +57,7 @@
       </template>
       <!-- 上传 -->
       <template v-if="item.type === 'Upload'">
-        <Upload ref="upload" :imgUrl="formData[item.prop]" :value.sync="formData[item.prop]" />
+        <Upload ref="upload" :imgUrl="formData[item.prop]" :value.sync="formData[item.prop]" :requestFlag="item.requestFlag" />
       </template>  
       <!-- 插槽 -->
       <slot v-if="item.type === 'Slot'" :name="item.slotName"></slot>    
