@@ -12,6 +12,8 @@ import "./icon";
 import "./plugins/elementui";
 // 导入Composition API模块
 import "./plugins/compositionApi";
+//对话框拖拽
+import './utils/dialogDrag';
 Vue.config.productionTip = false;
 
 new Vue({

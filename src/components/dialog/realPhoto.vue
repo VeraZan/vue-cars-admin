@@ -1,11 +1,12 @@
 <template>
   <el-dialog 
-  :title="title" 
-  class="cars-dialog-center" 
-  width="300px" 
-  :visible.sync="dialogVisible" 
-  @close="close"
-  @open="open"
+    :title="title" 
+    class="cars-dialog-center" 
+    width="300px" 
+    :visible.sync="dialogVisible" 
+    @close="close"
+    @open="open" 
+    v-dialogDrag
   >
     <template v-if="img.length > 0">
       <img class="img-list" v-for="(item,index) in img" :key="index" :src="item">

@@ -4,7 +4,8 @@
     class="cars-dialog-center" 
     :visible.sync="dialogVisible" 
     @close="close"
-    @opened="opened"
+    @opened="opened" 
+    v-dialogDrag
   >
     <div class="amap-wrap">
       <Amap ref="aMap" />

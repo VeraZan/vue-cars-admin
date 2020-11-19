@@ -4,7 +4,8 @@
     class="cars-dialog-center" 
     :visible.sync="dialogVisible" 
     :close-on-click-modal="false"
-    @close="close"
+    @close="close" 
+    v-dialogDrag
   >
     <VueForm 
       ref="vuForm" 

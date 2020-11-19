@@ -5,7 +5,8 @@
     :visible.sync="dialog_visible" 
     :close-on-click-modal="false" 
     @opened="opened" 
-    @close="close"
+    @close="close" 
+    v-dialogDrag
   >
     <VueForm 
       ref="vuForm" 

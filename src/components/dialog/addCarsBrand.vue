@@ -5,7 +5,8 @@
   :visible.sync="dialogVisible" 
   :close-on-click-modal="false"
   @close="close"
-  @opened="opened"
+  @opened="opened" 
+  v-dialogDrag
   >
     <VueForm ref="vuForm" :formItem="form_item" :formData="form_data" :formHandler="form_handler" labelWidth="120px">
       <template v-slot:logo>
